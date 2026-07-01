@@ -8967,17 +8967,24 @@ $_mod_ua_fe.run("/globalheaderfrontend$41.0.0/src/ui-modules/gh-dynamic-componen
 @font-face{font-family:'Gramatika';src:url('./Checkout _ eBay_files/thanks_banner/Gramatika-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;}
 @font-face{font-family:'Gramatika';src:url('./Checkout _ eBay_files/thanks_banner/Gramatika-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap;}
 @font-face{font-family:'Gramatika';src:url('./Checkout _ eBay_files/thanks_banner/Gramatika-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap;}
-.tcb-root{container-type:inline-size;width:100%;font-family:'Gramatika',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+/* iOS Safari: kill any horizontal scroll on the page (the saved eBay snapshot + a
+   composited-layer clip quirk can leak width on iOS even when it's fine in Chrome) */
+html,body{max-width:100%;overflow-x:hidden;}
+.tcb-root{container-type:inline-size;width:100%;max-width:100%;font-family:'Gramatika',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 .tcb-root *{box-sizing:border-box;margin:0;padding:0;}
 .tcb-banner{display:flex;align-items:stretch;gap:8px;height:94px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:pan-x;outline:none;}
 .tcb-banner:focus-visible{outline:2px solid #2f6fd8;outline-offset:3px;border-radius:19px;}
-.tcb-stage{position:relative;flex:1 1 auto;min-width:0;height:94px;overflow:hidden;border-radius:16px;}
+.tcb-stage{position:relative;flex:1 1 auto;min-width:0;height:94px;overflow:hidden;border-radius:16px;contain:paint;transform:translateZ(0);}
 .tcb-track{display:flex;flex-direction:column;will-change:transform;transition:transform .55s cubic-bezier(.45,.02,.18,1);}
 .tcb-track.tcb-noanim{transition:none;}
 .tcb-card{position:relative;flex:0 0 94px;height:94px;display:flex;align-items:center;padding-right:16px;overflow:visible;}
 /* media */
 .tcb-media{flex:0 0 auto;height:100%;align-self:stretch;display:flex;align-items:center;margin:0 6px 0 10px;pointer-events:none;}
-.tcb-media img{height:100%;width:auto;display:block;}
+.tcb-media img{height:100%;width:auto;display:block;transform-origin:center;transition:transform .35s cubic-bezier(.2,0,0,1);}
+/* hover: gently scale + tilt the fan. scale(1.08) keeps it covering so the rotate never exposes an edge */
+@media (hover:hover){
+  .tcb-banner:hover .tcb-media img{transform:scale(1.08) rotate(2deg);}
+}
 /* offer stacks: full uncropped render (keeps the real Figma drop-shadow). The image is an
    oversized absolute layer positioned so the fan sits high and its shadow falls BELOW it,
    inside the card. Text content overlays on top (z-index). */
@@ -9030,6 +9037,8 @@ $_mod_ua_fe.run("/globalheaderfrontend$41.0.0/src/ui-modules/gh-dynamic-componen
 @media (prefers-reduced-motion:reduce){
   .tcb-track{transition:none;}
   .tcb-slot{transition:none;}
+  .tcb-media img{transition:none;}
+  .tcb-banner:hover .tcb-media img{transform:none;}
   .tcb-intro .tcb-media,.tcb-intro .tcb-content,.tcb-intro .tcb-btn{animation:none;}
 }
 </style>
@@ -9144,9 +9153,11 @@ $_mod_ua_fe.run("/globalheaderfrontend$41.0.0/src/ui-modules/gh-dynamic-componen
     resetFills();
     var active=slots[page-windowStart()];
     if(active){
-      void active.fill.offsetHeight;             // reflow
+      active.fill.style.transition='none';       // start as a 5px circle (the dot), not a zero-height sliver
+      active.fill.style.height='5px';
+      void active.fill.offsetHeight;             // commit the circle
       active.fill.style.transition='';           // restore CSS transition
-      active.fill.style.height='';               // clear inline 0 so .tcb-run's height:100% drives the fill
+      active.fill.style.height='';               // let .tcb-run drive height:100%
       active.fill.classList.add('tcb-run');
     }
   }
