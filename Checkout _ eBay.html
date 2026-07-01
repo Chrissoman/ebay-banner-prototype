@@ -9015,8 +9015,8 @@ html,body{max-width:100%;overflow-x:hidden;}
 .tcb-slot:focus-visible{outline:2px solid #2f6fd8;outline-offset:2px;}
 .tcb-slot.tcb-small{width:3px;height:3px;}
 .tcb-slot.tcb-pill{width:5px;height:34px;border-radius:100px;background:var(--tcb-track,#d4d4d4);}
-.tcb-fill{position:absolute;left:0;top:0;width:100%;height:0;background:var(--tcb-fill,#171717);border-radius:100px;}
-.tcb-fill.tcb-run{height:100%;transition:height var(--tcb-dur,5000ms) linear;}
+.tcb-fill{position:absolute;left:0;top:0;width:100%;height:0;opacity:0;background:var(--tcb-fill,#171717);border-radius:100px;transition:opacity .2s ease;}
+.tcb-fill.tcb-run{height:100%;opacity:1;transition:height var(--tcb-dur,5000ms) linear,opacity .2s ease;}
 /* one-time staggered entrance for the first visible card (split into chunks, not one container) */
 @keyframes tcb-in{from{opacity:0;transform:translateY(8px);filter:blur(4px);}to{opacity:1;transform:none;filter:none;}}
 .tcb-intro .tcb-media,.tcb-intro .tcb-content,.tcb-intro .tcb-btn{animation:tcb-in .5s cubic-bezier(.2,0,0,1) both;}
@@ -9036,10 +9036,11 @@ html,body{max-width:100%;overflow-x:hidden;}
   .tcb-btn.tcb-icon{display:none;}
   .tcb-offer .tcb-body{display:none;}
 }
-/* remaining spots (offers): below 400px screen width, nudge the image + text 16px left */
+/* remaining spots (offers): below 400px screen width, nudge the image + text 16px left and drop the button */
 @media (max-width:399.98px){
   .tcb-offer .tcb-media img{left:-82px;}
   .tcb-offer .tcb-content{margin-left:-10px;}
+  .tcb-offer .tcb-btn{display:none;}
 }
 @media (prefers-reduced-motion:reduce){
   .tcb-track{transition:none;}
@@ -9154,19 +9155,27 @@ html,body{max-width:100%;overflow-x:hidden;}
   }
 
   function resetFills(){
-    slots.forEach(function(sp){sp.fill.classList.remove('tcb-run');sp.fill.style.transition='none';sp.fill.style.height='0';});
+    slots.forEach(function(sp){
+      sp.fill.classList.remove('tcb-run');
+      sp.fill.style.transition='';   // base transition = opacity only, so...
+      sp.fill.style.height='0px';    // ...height snaps back instantly (no reverse growth)
+      sp.fill.style.opacity='';      // ...and the outgoing fill fades out over 200ms
+    });
   }
 
   function runProgress(){
     resetFills();
     var active=slots[page-windowStart()];
     if(active){
-      active.fill.style.transition='none';       // start as a 5px circle (the dot), not a zero-height sliver
-      active.fill.style.height='5px';
-      void active.fill.offsetHeight;             // commit the circle
-      active.fill.style.transition='';           // restore CSS transition
-      active.fill.style.height='';               // let .tcb-run drive height:100%
-      active.fill.classList.add('tcb-run');
+      var f=active.fill;
+      f.style.transition='none';     // start as a 5px circle, invisible
+      f.style.height='5px';
+      f.style.opacity='0';
+      void f.offsetHeight;           // commit the start
+      f.style.transition='';         // hand back to CSS
+      f.style.height='';             // .tcb-run drives height 5px -> 100% over 5s
+      f.style.opacity='';            // .tcb-run fades opacity 0 -> 1 over 200ms
+      f.classList.add('tcb-run');
     }
   }
 
@@ -9210,7 +9219,10 @@ html,body{max-width:100%;overflow-x:hidden;}
   }
 
   track.addEventListener('transitionend',function(e){
-    if(e.propertyName!=='transform') return;
+    // only the track's OWN slide transition counts — ignore transitionend bubbling up
+    // from descendants (e.g. the media image's hover scale/rotate, button press) which
+    // also report propertyName 'transform' and would otherwise restart the slide.
+    if(e.target!==track || e.propertyName!=='transform') return;
     locked=false;
     settle();
   });
