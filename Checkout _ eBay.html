@@ -8970,6 +8970,9 @@ $_mod_ua_fe.run("/globalheaderfrontend$41.0.0/src/ui-modules/gh-dynamic-componen
 /* iOS Safari: kill any horizontal scroll on the page (the saved eBay snapshot + a
    composited-layer clip quirk can leak width on iOS even when it's fine in Chrome) */
 html,body{max-width:100%;overflow-x:hidden;}
+/* eBay help ("?") widget: its JS is disabled in this snapshot, leaving a stale inline
+   top offset that floats it mid-page. Pin it to the bottom-right of the viewport. */
+#ifhContainer{position:fixed!important;top:auto!important;left:auto!important;bottom:24px!important;right:24px!important;z-index:99999!important;}
 .tcb-root{container-type:inline-size;width:100%;max-width:100%;font-family:'Gramatika',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 .tcb-root *{box-sizing:border-box;margin:0;padding:0;}
 .tcb-banner{display:flex;align-items:stretch;gap:8px;height:94px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:pan-x;outline:none;}
