@@ -8983,10 +8983,11 @@ html,body{max-width:100%;overflow-x:hidden;}
 .tcb-card{position:relative;flex:0 0 94px;height:94px;display:flex;align-items:center;padding-right:16px;overflow:visible;}
 /* media */
 .tcb-media{flex:0 0 auto;height:100%;align-self:stretch;display:flex;align-items:center;margin:0 6px 0 10px;pointer-events:none;}
-.tcb-media img{height:100%;width:auto;display:block;transform-origin:center;transition:transform .35s cubic-bezier(.2,0,0,1);}
-/* hover: gently scale + tilt the fan. scale(1.08) keeps it covering so the rotate never exposes an edge */
+.tcb-media img{height:100%;width:auto;display:block;transform-origin:center;transition:transform .35s cubic-bezier(.2,0,0,1);pointer-events:auto;}
+/* hover: gently scale + tilt the fan — only when hovering the image itself, not the whole unit.
+   scale(1.08) keeps it covering so the rotate never exposes an edge */
 @media (hover:hover){
-  .tcb-banner:hover .tcb-media img{transform:scale(1.08) rotate(2deg);}
+  .tcb-media img:hover{transform:scale(1.08) rotate(2deg);}
 }
 /* offer stacks: full uncropped render (keeps the real Figma drop-shadow). The image is an
    oversized absolute layer positioned so the fan sits high and its shadow falls BELOW it,
@@ -9010,6 +9011,8 @@ html,body{max-width:100%;overflow-x:hidden;}
 .tcb-btn.tcb-icon{position:relative;}
 .tcb-btn.tcb-icon svg{margin-left:1px;}/* optical nudge: chevron mass sits left of geometric centre */
 .tcb-btn.tcb-icon::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;}/* 40x40 min hit area around the 32px button */
+/* terms label: absolutely positioned in the card's bottom-right corner */
+.tcb-terms{position:absolute;right:8px;bottom:5px;z-index:2;font-size:11px;line-height:1;color:#737373;white-space:nowrap;pointer-events:none;}
 /* progress rail — each slot IS the dot/pill (explicit heights so transitions are smooth) */
 .tcb-rail{flex:0 0 6px;width:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:4px 0;animation:tcb-railin .2s ease both;}
 @keyframes tcb-railin{from{opacity:0;}to{opacity:1;}}
@@ -9049,7 +9052,7 @@ html,body{max-width:100%;overflow-x:hidden;}
   .tcb-track{transition:none;}
   .tcb-slot{transition:none;}
   .tcb-media img{transition:none;}
-  .tcb-banner:hover .tcb-media img{transform:none;}
+  .tcb-media img:hover{transform:none;}
   .tcb-intro .tcb-media,.tcb-intro .tcb-content,.tcb-intro .tcb-btn{animation:none;}
   .tcb-rail{animation:none;}
 }
@@ -9064,17 +9067,17 @@ html,body{max-width:100%;overflow-x:hidden;}
   var BASE='./Checkout _ eBay_files/thanks_banner/';
   var SLIDES=[
     {key:'splash',splash:true,bg:'#ff8808',img:'splash.png',logo:true,
-      title:'Your order includes 5 offers',body:'Redeem $10 bonus, win a cruise to Japan and more',
+      title:'Your order includes 5 offers',body:'$350 cashback, win a cruise to Japan and more',
       titleColor:'#562501',bodyColor:'#562501',btnBg:'#562501',btnColor:'#ffa442',
       btnLong:'Claim your rewards',btnShort:'Claim now',fill:'#562501'},
     {key:'turquoise',bg:'#45ccd5',img:'turquoise.png',
-      title:'You’ve Unlocked 15% OFF CAKES',
-      titleColor:'#05383c',btnBg:'#05383c',btnColor:'#70f5fe',btnLong:'Claim 15% off',fill:'#171717'},
+      title:'Enter to win a cruise for 2 to Japan!',
+      titleColor:'#05383c',btnBg:'#05383c',btnColor:'#70f5fe',btnLong:'Subscribe to enter',fill:'#171717'},
     {key:'green',bg:'#4de160',img:'green.png',
       title:'Join Chime in 2 mins and earn up to $350*',
       titleColor:'#04400b',btnBg:'#04400b',btnColor:'#74ff86',btnLong:'Claim now',fill:'#171717'},
     {key:'yellow',bg:'#e3f13b',img:'yellow.png',
-      title:'Save on Disney+ and Hulu!',
+      title:'3 months of Disney+ &amp; Hulu for $4.99/mo',
       titleColor:'#363a01',btnBg:'#363a01',btnColor:'#f4ff6b',btnLong:'Claim now',fill:'#171717'},
     {key:'pink',bg:'#ff78b8',img:'pink.png',
       title:'Up to a $250 bonus toward travel + no annual fee',
@@ -9103,7 +9106,8 @@ html,body{max-width:100%;overflow-x:hidden;}
       btns += '<button class="tcb-btn tcb-icon" type="button" aria-label="View offer" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+CHEVRON+'</button>';
     }
     var cls='tcb-card '+(s.splash?'tcb-splash':'tcb-offer');
-    return '<div class="'+cls+'" style="background:'+s.bg+'">'+media+content+btns+'</div>';
+    var terms='<div class="tcb-terms">Terms apply · Sponsored</div>';
+    return '<div class="'+cls+'" style="background:'+s.bg+'">'+media+content+btns+terms+'</div>';
   }
 
   // Track with clones for seamless infinite loop: [cloneLast, 0..N-1, cloneFirst]
