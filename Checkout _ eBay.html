@@ -9026,6 +9026,19 @@ html,body{max-width:100%;overflow-x:hidden;}
 /* no-autoplay variant: active indicator is just a darker dot (no elongated progress pill/fill) */
 .tcb-static .tcb-slot.tcb-pill{width:5px;height:5px;border-radius:50%;background:var(--tcb-fill,#171717);}
 .tcb-static .tcb-fill{display:none;}
+/* arrows variant: wider 8px rail with hover-reveal prev/next arrows at the ends */
+.tcb-arrows .tcb-rail{flex-basis:8px;width:8px;position:relative;}
+.tcb-arrow{position:absolute;left:50%;width:16px;height:14px;padding:0;border:none;background:none;color:#737373;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;z-index:3;transition:opacity .2s ease,transform .28s cubic-bezier(.2,0,0,1);}
+.tcb-arrow svg{width:12px;height:12px;display:block;}
+.tcb-arrow-prev{top:0;transform:translate(-50%,8px);}
+.tcb-arrow-next{bottom:0;transform:translate(-50%,-8px);}
+@media (hover:hover){
+  .tcb-arrows .tcb-banner:hover .tcb-arrow{opacity:1;pointer-events:auto;}
+  .tcb-arrows .tcb-banner:hover .tcb-arrow-prev{transform:translate(-50%,0);}
+  .tcb-arrows .tcb-banner:hover .tcb-arrow-next{transform:translate(-50%,0);}
+  .tcb-arrow:hover{color:#171717;}
+}
+@media (prefers-reduced-motion:reduce){ .tcb-arrow{transition:opacity .2s ease;} }
 /* one-time staggered entrance for the first visible card (split into chunks, not one container) */
 @keyframes tcb-in{from{opacity:0;transform:translateY(8px);filter:blur(4px);}to{opacity:1;transform:none;filter:none;}}
 .tcb-intro .tcb-media,.tcb-intro .tcb-content,.tcb-intro .tcb-btn{animation:tcb-in .5s cubic-bezier(.2,0,0,1) both;}
@@ -9092,9 +9105,13 @@ html,body{max-width:100%;overflow-x:hidden;}
   var N=SLIDES.length, H=94, DURATION=5000;
   var CHEVRON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var PARAMS = new URLSearchParams(location.search);
   // no-autoplay variant (?autoplay=off): manual navigation only, darker active dot instead of a progress pill
-  var STATIC = new URLSearchParams(location.search).get('autoplay')==='off';
+  var STATIC = PARAMS.get('autoplay')==='off';
   if(STATIC) ROOT.classList.add('tcb-static');
+  // arrows variant (?arrows=on): fewer dots + wider rail, prev/next arrows that fade+slide in on desktop hover
+  var ARROWS = PARAMS.get('arrows')==='on';
+  if(ARROWS) ROOT.classList.add('tcb-arrows');
 
   function cardHTML(s){
     var media = s.logo
@@ -9122,8 +9139,8 @@ html,body{max-width:100%;overflow-x:hidden;}
   track.innerHTML=order.map(cardHTML).join('');
   if(track.children[1]) track.children[1].classList.add('tcb-intro'); // first visible slide: one-time entrance
 
-  // Rail: 5 fixed slots (each slot is the dot/pill)
-  var W=Math.min(5,N);
+  // Rail: fixed slots (each slot is the dot/pill). Arrows variant shows fewer dots to free room for the arrows.
+  var W=Math.min(ARROWS?4:5,N);
   var rail=document.getElementById('tcb-rail');
   var slots=[];
   for(var i=0;i<W;i++){
@@ -9140,6 +9157,20 @@ html,body{max-width:100%;overflow-x:hidden;}
       slot.addEventListener('click',function(e){e.stopPropagation();goTo(windowStart()+i);});
       slot.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();goTo(windowStart()+i);}});
     })(i);
+  }
+
+  if(ARROWS){
+    var mkArrow=function(dir,label,d){
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='tcb-arrow tcb-arrow-'+(dir<0?'prev':'next');
+      b.setAttribute('aria-label',label);
+      b.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      b.addEventListener('click',function(e){e.stopPropagation();go(dir);});
+      rail.appendChild(b);
+    };
+    mkArrow(-1,'Previous offer','M4 10l4-4 4 4'); // chevron up
+    mkArrow(1,'Next offer','M4 6l4 4 4-4');       // chevron down
   }
 
   var page=0, pos=1, timer=null, locked=false;
