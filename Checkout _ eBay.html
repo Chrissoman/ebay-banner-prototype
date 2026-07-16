@@ -9023,6 +9023,9 @@ html,body{max-width:100%;overflow-x:hidden;}
 .tcb-slot.tcb-pill{width:5px;height:34px;border-radius:100px;background:var(--tcb-track,#d4d4d4);}
 .tcb-fill{position:absolute;left:0;top:0;width:100%;height:0;opacity:0;background:var(--tcb-fill,#171717);border-radius:100px;transition:opacity .2s ease;}
 .tcb-fill.tcb-run{height:100%;opacity:1;transition:height var(--tcb-dur,5000ms) linear,opacity .2s ease;}
+/* no-autoplay variant: active indicator is just a darker dot (no elongated progress pill/fill) */
+.tcb-static .tcb-slot.tcb-pill{width:5px;height:5px;border-radius:50%;background:var(--tcb-fill,#171717);}
+.tcb-static .tcb-fill{display:none;}
 /* one-time staggered entrance for the first visible card (split into chunks, not one container) */
 @keyframes tcb-in{from{opacity:0;transform:translateY(8px);filter:blur(4px);}to{opacity:1;transform:none;filter:none;}}
 .tcb-intro .tcb-media,.tcb-intro .tcb-content,.tcb-intro .tcb-btn{animation:tcb-in .5s cubic-bezier(.2,0,0,1) both;}
@@ -9089,6 +9092,9 @@ html,body{max-width:100%;overflow-x:hidden;}
   var N=SLIDES.length, H=94, DURATION=5000;
   var CHEVRON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  // no-autoplay variant (?autoplay=off): manual navigation only, darker active dot instead of a progress pill
+  var STATIC = new URLSearchParams(location.search).get('autoplay')==='off';
+  if(STATIC) ROOT.classList.add('tcb-static');
 
   function cardHTML(s){
     var media = s.logo
@@ -9156,7 +9162,7 @@ html,body{max-width:100%;overflow-x:hidden;}
       sp.slot.setAttribute('aria-current',isPill?'true':'false');
       if(isPill){
         sp.slot.style.setProperty('--tcb-track',SLIDES[page].bg);
-        sp.fill.style.setProperty('--tcb-fill',SLIDES[page].fill);
+        sp.slot.style.setProperty('--tcb-fill',SLIDES[page].fill); // slot (static dark dot) + fill inherit
       }
     }
   }
@@ -9171,6 +9177,7 @@ html,body{max-width:100%;overflow-x:hidden;}
   }
 
   function runProgress(){
+    if(STATIC) return;             // no progress bar in the no-autoplay variant
     resetFills();
     var active=slots[page-windowStart()];
     if(active){
@@ -9196,6 +9203,7 @@ html,body{max-width:100%;overflow-x:hidden;}
   }
 
   function scheduleAuto(){
+    if(STATIC) return;             // no autoplay in the no-autoplay variant
     clearTimeout(timer);
     timer=setTimeout(function(){ go(1); }, DURATION);
   }
