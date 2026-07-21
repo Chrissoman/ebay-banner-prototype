@@ -9016,15 +9016,15 @@ html,body{max-width:100%;overflow-x:hidden;}
 /* progress rail — each slot IS the dot/pill (explicit heights so transitions are smooth) */
 .tcb-rail{flex:0 0 6px;width:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:4px 0;animation:tcb-railin .2s ease both;}
 @keyframes tcb-railin{from{opacity:0;}to{opacity:1;}}
-.tcb-slot{flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:#d4d4d4;position:relative;cursor:pointer;transition:height .4s cubic-bezier(.45,.02,.18,1),width .4s cubic-bezier(.45,.02,.18,1),border-radius .4s ease,background-color .4s ease;}
+.tcb-slot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#d4d4d4;position:relative;cursor:pointer;transition:height .4s cubic-bezier(.45,.02,.18,1),width .4s cubic-bezier(.45,.02,.18,1),border-radius .4s ease,background-color .4s ease;}
 .tcb-slot::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:12px;}/* expanded hit area for the small orbs (kept just under the 12px pitch so hit areas don't overlap) */
 .tcb-slot:focus-visible{outline:2px solid #2f6fd8;outline-offset:2px;}
-.tcb-slot.tcb-small{width:3px;height:3px;}
-.tcb-slot.tcb-pill{width:5px;height:34px;border-radius:100px;background:var(--tcb-track,#d4d4d4);}
+.tcb-slot.tcb-small{width:4px;height:4px;}
+.tcb-slot.tcb-pill{width:6px;height:34px;border-radius:100px;background:var(--tcb-track,#d4d4d4);}
 .tcb-fill{position:absolute;left:0;top:0;width:100%;height:0;opacity:0;background:var(--tcb-fill,#171717);border-radius:100px;transition:opacity .2s ease;}
 .tcb-fill.tcb-run{height:100%;opacity:1;transition:height var(--tcb-dur,5000ms) linear,opacity .2s ease;}
 /* no-autoplay variant: active indicator is just a darker dot (no elongated progress pill/fill) */
-.tcb-static .tcb-slot.tcb-pill{width:5px;height:5px;border-radius:50%;background:var(--tcb-fill,#171717);}
+.tcb-static .tcb-slot.tcb-pill{width:6px;height:6px;border-radius:50%;background:var(--tcb-fill,#171717);}
 .tcb-static .tcb-fill{display:none;}
 /* arrows variant: wider 8px rail with hover-reveal prev/next arrows at the ends */
 .tcb-arrows .tcb-rail{flex-basis:8px;width:8px;position:relative;}
