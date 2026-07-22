@@ -31,13 +31,13 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
    each wrapper places a card by its own top-left origin with the design's CCW rotation;
    the inner .lb-card carries hover animation (origin bottom-left) so placement and
    animation never fight. */
-.lb-graphic{position:absolute;left:14px;top:11px;width:195px;height:228px;z-index:1;perspective:820px;}
-.lb-cards{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;}
-.lb-cw{position:absolute;top:0;left:0;transform-origin:0 0;transform-style:preserve-3d;}
-.lb-cw1{width:90px;height:117px;transform:translate3d(22px,86px,0) rotate(-22.3deg);z-index:1;}
-.lb-cw2{width:90px;height:126px;transform:translate3d(31px,72px,9px) rotate(-17.3deg);z-index:2;}
-.lb-cw3{width:90px;height:134px;transform:translate3d(43px,59px,18px) rotate(-12.3deg);z-index:3;}
-.lb-cw4{width:97px;height:140px;transform:translate3d(58px,47px,28px) rotate(-7.3deg);z-index:4;}
+.lb-graphic{position:absolute;left:14px;top:11px;width:195px;height:228px;z-index:1;}
+.lb-cards{position:absolute;inset:0;}
+.lb-cw{position:absolute;top:0;left:0;transform-origin:0 0;}
+.lb-cw1{width:90px;height:117px;transform:translate(22px,86px) rotate(-22.3deg);z-index:1;}
+.lb-cw2{width:90px;height:126px;transform:translate(31px,72px) rotate(-17.3deg);z-index:2;}
+.lb-cw3{width:90px;height:134px;transform:translate(43px,59px) rotate(-12.3deg);z-index:3;}
+.lb-cw4{width:97px;height:140px;transform:translate(58px,47px) rotate(-7.3deg);z-index:4;}
 .lb-card{position:absolute;inset:0;border-radius:14px;transform-origin:0% 100%;
   box-shadow:0 8px 16px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.12);
   transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;backface-visibility:hidden;}
@@ -206,21 +206,6 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
   nextBtn.addEventListener('click',function(e){e.stopPropagation();go(1);});
-
-  // card group only: 3D tilt + subtle positional shift, driven by mouse anywhere on the banner
-  var allCards=[].slice.call(track.querySelectorAll('.lb-cards'));
-  if(allCards.length && !reduce){
-    stage.addEventListener('mousemove',function(e){
-      var r=stage.getBoundingClientRect();
-      var mx=(e.clientX-r.left)/r.width-0.5, my=(e.clientY-r.top)/r.height-0.5;
-      var t='translate('+(mx*8).toFixed(2)+'px,'+(my*6).toFixed(2)+'px) '
-           +'rotateY('+(mx*15).toFixed(2)+'deg) rotateX('+(-my*15).toFixed(2)+'deg)';
-      allCards.forEach(function(c){ c.style.transform=t; });
-    });
-    stage.addEventListener('mouseleave',function(){
-      allCards.forEach(function(c){ c.style.transform=''; });
-    });
-  }
 
   // wheel over the unit -> page (bounded)
   var wheelLock=false;
