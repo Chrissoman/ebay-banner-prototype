@@ -107,11 +107,9 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 @keyframes lb-rise2{from{opacity:0;transform:translateY(var(--lb-rise-y,16px));}to{opacity:1;transform:none;}}
 .lb-enter .lb-content{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .3s both;}
 .lb-splash.lb-enter .lb-graphic{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
-/* the card fan enters card by card, back to front */
-.lb-offer.lb-enter .lb-cw1 .lb-card{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .16s both;}
-.lb-offer.lb-enter .lb-cw2 .lb-card{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .21s both;}
-.lb-offer.lb-enter .lb-cw3 .lb-card{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .26s both;}
-.lb-offer.lb-enter .lb-cw4 .lb-card{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .31s both;}
+/* the card fan enters as one set — animating the container (not each card) so the
+   per-card hover transforms (fan spread) aren't overridden by an animation fill */
+.lb-offer.lb-enter .lb-cards{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
 
 @media (prefers-reduced-motion:reduce){
   .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo{transition:none;}
@@ -120,7 +118,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   .lb-offer .lb-graphic:hover{transform:none;}
   .lb-logo:hover{transform:translateY(-50%);}
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
-  .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cw .lb-card{animation:none;}
+  .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cards{animation:none;}
 }
 </style>
 </head>
@@ -230,9 +228,8 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
   nextBtn.addEventListener('click',function(e){e.stopPropagation();go(1);});
 
-  // spot 1 CTA scrolls to the first offer
-  var splashBtn=bodies[0]&&bodies[0].querySelector('.lb-btn');
-  if(splashBtn) splashBtn.addEventListener('click',function(e){e.stopPropagation();goTo(1);});
+  // clicking anywhere on spot 1 (CTA included) scrolls to the first offer
+  if(bodies[0]) bodies[0].addEventListener('click',function(){ goTo(1); });
 
   // wheel over the unit -> page (bounded)
   var wheelLock=false;
