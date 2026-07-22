@@ -99,6 +99,11 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 @keyframes lb-rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
 .lb-intro .lb-graphic,.lb-intro .lb-content{animation:lb-rise .5s cubic-bezier(.2,0,0,1) both;}
 .lb-intro .lb-content{animation-delay:120ms;}
+/* same entrance re-played on the incoming spot at every transition, timed to land with the slide.
+   Separate keyframe name so it restarts even on spot 1, whose completed intro uses lb-rise. */
+@keyframes lb-rise2{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.lb-enter .lb-graphic{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
+.lb-enter .lb-content{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .3s both;}
 
 @media (prefers-reduced-motion:reduce){
   .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo{transition:none;}
@@ -107,6 +112,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   .lb-offer .lb-graphic:hover{transform:none;}
   .lb-logo:hover{transform:translateY(-50%);}
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
+  .lb-enter .lb-graphic,.lb-enter .lb-content{animation:none;}
 }
 </style>
 </head>
@@ -200,8 +206,14 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
     prevBtn.disabled=(pos===0);
     nextBtn.disabled=(pos===N-1);
   }
-  function go(dir){ var np=Math.max(0,Math.min(N-1,pos+dir)); if(locked||np===pos)return; locked=true; pos=np; render(true); if(reduce)locked=false; }
-  function goTo(i){ i=Math.max(0,Math.min(N-1,i)); if(locked||i===pos)return; locked=true; pos=i; render(true); if(reduce)locked=false; }
+  function playEnter(){                      // replay the intro rise/fade on the incoming spot
+    if(reduce) return;
+    bodies.forEach(function(b){ b.classList.remove('lb-enter'); });
+    var b=bodies[pos]; void b.offsetWidth;   // reflow so re-adding the class restarts the animation
+    b.classList.add('lb-enter');
+  }
+  function go(dir){ var np=Math.max(0,Math.min(N-1,pos+dir)); if(locked||np===pos)return; locked=true; pos=np; render(true); playEnter(); if(reduce)locked=false; }
+  function goTo(i){ i=Math.max(0,Math.min(N-1,i)); if(locked||i===pos)return; locked=true; pos=i; render(true); playEnter(); if(reduce)locked=false; }
   track.addEventListener('transitionend',function(e){ if(e.target===track && e.propertyName==='transform') locked=false; });
 
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
