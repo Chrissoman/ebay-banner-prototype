@@ -20,42 +20,59 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-unit{display:flex;align-items:stretch;gap:8px;width:970px;height:250px;user-select:none;}
 
 /* scrolling viewport */
-.lb-stage{position:relative;flex:0 0 954px;width:954px;height:250px;overflow:hidden;border-radius:24px;contain:paint;transform:translateZ(0);cursor:pointer;}
+.lb-stage{position:relative;flex:0 0 954px;width:954px;height:250px;overflow:hidden;border-radius:24px;contain:paint;transform:translateZ(0);cursor:pointer;
+  --lb-ink:#562501;--lb-accent:#ffa442;}
 .lb-track{display:flex;flex-direction:column;will-change:transform;transition:transform .55s cubic-bezier(.45,.02,.18,1);}
 .lb-track.lb-noanim{transition:none;}
 .lb-body{position:relative;flex:0 0 250px;width:954px;height:250px;overflow:hidden;}
 
-/* media */
-.lb-img{position:absolute;left:6px;top:11px;width:209px;height:auto;display:block;transform-origin:center;transition:transform .35s cubic-bezier(.2,0,0,1);}
-.lb-logo{position:absolute;left:40px;top:50%;transform:translateY(-50%);width:100px;height:100px;border-radius:50%;display:block;}
+/* graphic frame: layered cards that animate independently */
+.lb-graphic{position:absolute;left:8px;top:0;bottom:0;width:206px;z-index:1;perspective:820px;}
+.lb-cards{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;}
+.lb-card{position:absolute;left:16px;bottom:42px;width:116px;height:150px;border-radius:14px;transform-origin:0% 100%;
+  box-shadow:0 8px 16px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.12);
+  transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;backface-visibility:hidden;}
+.lb-c1{transform:rotate(22deg) translateZ(0px);z-index:1;}
+.lb-c2{transform:rotate(16.5deg) translateZ(9px);z-index:2;}
+.lb-c3{transform:rotate(11deg) translateZ(18px);z-index:3;}
+.lb-c4{width:114px;height:152px;border-radius:15px;transform:rotate(6deg) translateZ(28px);z-index:4;overflow:hidden;background-color:#ff8808;background-size:cover;background-position:center;}
+/* hover: scale up slightly + fan out subtly, pivoting from bottom-left */
+@media (hover:hover){
+  .lb-graphic:hover .lb-c1{transform:rotate(31deg) translateZ(0px) scale(1.05);}
+  .lb-graphic:hover .lb-c2{transform:rotate(22deg) translateZ(9px) scale(1.05);}
+  .lb-graphic:hover .lb-c3{transform:rotate(13deg) translateZ(18px) scale(1.05);}
+  .lb-graphic:hover .lb-c4{transform:rotate(5deg) translateZ(28px) scale(1.05);}
+}
+.lb-logo{position:absolute;left:40px;top:50%;transform:translateY(-50%);width:100px;height:100px;border-radius:50%;display:block;z-index:1;}
 
-/* text */
-.lb-text{position:absolute;top:50%;transform:translateY(-50%);z-index:1;}
-.lb-offer .lb-text{left:212px;width:537px;}
-.lb-splash .lb-text{left:168px;width:520px;}
+/* content = text + CTA in a flex row so the button's flexible width never overlaps the text */
+.lb-content{position:absolute;top:0;bottom:0;right:40px;display:flex;align-items:center;gap:28px;z-index:2;}
+.lb-offer .lb-content{left:222px;}
+.lb-splash .lb-content{left:160px;}
+.lb-text{flex:1 1 auto;min-width:0;}
 .lb-heading{margin:0;font-weight:900;letter-spacing:-.02em;text-wrap:balance;}
 .lb-offer .lb-heading{font-size:28px;line-height:1.08;}
 .lb-splash .lb-heading{font-size:34px;line-height:1.05;}
-.lb-body-txt{margin:12px 0 0;font-weight:400;text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
+.lb-body-txt{margin:11px 0 0;font-weight:400;text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
 .lb-offer .lb-body-txt{font-size:15px;line-height:1.4;}
-.lb-splash .lb-body-txt{font-size:17px;line-height:1.4;-webkit-line-clamp:2;}
+.lb-splash .lb-body-txt{font-size:17px;line-height:1.4;}
 
 /* CTA button */
-.lb-btn{position:absolute;right:40px;top:50%;transform:translateY(-50%);z-index:1;height:48px;padding:0 20px;
-  border:none;border-radius:120px;font-family:inherit;font-weight:700;font-size:18px;line-height:1;white-space:nowrap;cursor:pointer;
+.lb-btn{flex:0 0 auto;height:48px;padding:0 22px;border:none;border-radius:120px;font-family:inherit;font-weight:700;font-size:18px;line-height:1;white-space:nowrap;cursor:pointer;
   transition:transform .15s ease,filter .15s ease;}
-@media (hover:hover){.lb-btn:hover{transform:translateY(-50%) scale(1.02);filter:brightness(1.08);}}
-.lb-btn:active{transform:translateY(-50%) scale(.96);}
+@media (hover:hover){.lb-btn:hover{transform:scale(1.02);filter:brightness(1.08);}}
+.lb-btn:active{transform:scale(.96);}
 
-/* terms (bottom-left) */
-.lb-terms{position:absolute;left:15px;bottom:12px;font-size:11px;line-height:1;font-weight:400;pointer-events:none;mix-blend-mode:multiply;opacity:.85;}
+/* terms (bottom-left, scrolls with the spot) */
+.lb-terms{position:absolute;left:15px;bottom:12px;font-size:11px;line-height:1;font-weight:400;pointer-events:none;mix-blend-mode:multiply;opacity:.85;z-index:2;}
 
-/* prev / next arrows (bottom-right) */
-.lb-arrows{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:2;}
+/* prev / next arrows — SHARED overlay, fixed on the stage; colours animate between spots */
+.lb-arrows{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:6;}
 .lb-arrow{position:relative;width:32px;height:32px;border:none;border-radius:100px;display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:transform .15s ease,opacity .2s ease;}
+  background:var(--lb-ink);color:var(--lb-accent);
+  transition:background-color .55s ease,color .55s ease,transform .15s ease,opacity .25s ease,filter .15s ease;}
 .lb-arrow svg{width:16px;height:16px;display:block;}
-.lb-arrow::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:40px;}/* >=40px-ish hit area, kept within the 6px gap so the two never overlap */
+.lb-arrow::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:40px;}
 @media (hover:hover){.lb-arrow:not([disabled]):hover{transform:scale(1.06);filter:brightness(1.08);}}
 .lb-arrow:not([disabled]):active{transform:scale(.94);}
 .lb-arrow[disabled]{opacity:.4;pointer-events:none;cursor:default;}
@@ -64,27 +81,19 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-pag{flex:0 0 8px;width:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
 .lb-dot{position:relative;width:7px;height:7px;border-radius:100px;background:#d4d4d4;cursor:pointer;padding:0;border:none;
   transition:background-color .3s ease,transform .3s ease;}
-.lb-dot::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:14px;}/* hit area, under the 15px pitch */
+.lb-dot::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:14px;}
 .lb-dot.on{background:#171717;}
 .lb-dot:focus-visible,.lb-arrow:focus-visible,.lb-btn:focus-visible,.lb-stage:focus-visible{outline:2px solid #2f6fd8;outline-offset:2px;}
 
-/* one-time staggered entrance for the first spot */
-@keyframes lb-in{from{opacity:0;transform:translateY(10px);filter:blur(5px);}to{opacity:1;transform:none;filter:none;}}
-.lb-intro .lb-img,.lb-intro .lb-logo,.lb-intro .lb-text,.lb-intro .lb-btn{animation:lb-in .5s cubic-bezier(.2,0,0,1) both;}
-.lb-intro .lb-logo{animation-name:lb-in-logo;}
-@keyframes lb-in-logo{from{opacity:0;transform:translateY(-50%) translateY(10px);}to{opacity:1;transform:translateY(-50%);}}
-.lb-intro .lb-img{animation-delay:20ms;}
-.lb-intro .lb-logo{animation-delay:20ms;}
-.lb-intro .lb-text{animation-delay:110ms;}
-.lb-intro .lb-btn{animation-delay:190ms;}
-/* the CTA keeps its translateY(-50%); animate a wrapper-free rise via keyframe that preserves centering */
-.lb-intro .lb-btn{animation-name:lb-in-btn;}
-@keyframes lb-in-btn{from{opacity:0;transform:translateY(-50%) translateY(10px);}to{opacity:1;transform:translateY(-50%);}}
+/* one-time staggered entrance for the first spot (containers only — leaves card transforms intact) */
+@keyframes lb-rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.lb-intro .lb-graphic,.lb-intro .lb-content{animation:lb-rise .5s cubic-bezier(.2,0,0,1) both;}
+.lb-intro .lb-content{animation-delay:120ms;}
 
 @media (prefers-reduced-motion:reduce){
-  .lb-track,.lb-img,.lb-arrow,.lb-dot,.lb-btn{transition:none;}
-  .lb-img:hover{transform:none;}
-  .lb-intro .lb-img,.lb-intro .lb-logo,.lb-intro .lb-text,.lb-intro .lb-btn{animation:none;}
+  .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn{transition:none;}
+  .lb-graphic:hover .lb-c1,.lb-graphic:hover .lb-c2,.lb-graphic:hover .lb-c3,.lb-graphic:hover .lb-c4{transform:none;}
+  .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
 }
 </style>
 </head>
@@ -95,6 +104,10 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
       <div class="lb-unit">
         <div class="lb-stage" id="lb-stage" role="group" aria-roledescription="carousel" aria-label="THANKS offers" tabindex="0">
           <div class="lb-track" id="lb-track"></div>
+          <div class="lb-arrows" id="lb-arrows">
+            <button class="lb-arrow lb-prev" type="button" aria-label="Previous offer"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12.5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="lb-arrow lb-next" type="button" aria-label="Next offer"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
         </div>
         <div class="lb-pag" id="lb-pag" role="tablist" aria-label="Choose offer"></div>
       </div>
@@ -105,43 +118,45 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 (function(){
   var BASE='./leaderboard/';
   var SPOTS=[
-    {key:'splash',splash:true,bg:'#ff8808',img:'logo.png',logo:true,
+    {key:'splash',splash:true,bg:'#ff8808',logo:'logo.png',
       heading:'Your order includes 5 offers',body:'$350 cashback, win a cruise to Japan and more',
       ink:'#562501',btnBg:'#562501',btnColor:'#ffa442',btn:'Claim your rewards'},
-    {key:'cruise',bg:'#45ccd5',img:'cruise.png',
+    {key:'cruise',bg:'#45ccd5',photo:'photo-cruise.png',cards:['#ff78b8','#ff8808','#9e8bff'],
       heading:'Enter to win a cruise for 2 to Japan!',body:'For a limited time only, save 10% on Disney+ gift cards. With a range of card values available',
       ink:'#05383c',btnBg:'#05383c',btnColor:'#70f5fe',btn:'Subscribe to enter'},
-    {key:'chime',bg:'#4de160',img:'chime.png',
+    {key:'chime',bg:'#4de160',photo:'photo-chime.png',cards:['#e3f13b','#9e8bff','#ff8808'],
       heading:'Join Chime in 2 mins and earn up to $350*',body:'Meet the most loved banking app. Get up to $350 with a new Chime Checking Account. No Credit Check. No Monthly Fees. Open an account in 2 minutes.*',
       ink:'#04400b',btnBg:'#04400b',btnColor:'#74ff86',btn:'Claim now'},
-    {key:'disney',bg:'#e3f13b',img:'disney.png',
+    {key:'disney',bg:'#e3f13b',photo:'photo-disney.png',cards:['#ff78b8','#ff8808','#9e8bff'],
       heading:'Get 10% off your Disney+ Gift Card',body:'For a limited time only, save 10% on Disney+ gift cards. With a range of card values available',
       ink:'#363a01',btnBg:'#363a01',btnColor:'#f4ff6b',btn:'Get it now'},
-    {key:'gist',bg:'#ff78b8',img:'gist.png',
+    {key:'gist',bg:'#ff78b8',photo:'photo-gist.png',cards:['#e3f13b','#45ccd5','#9e8bff'],
       heading:'Up to a $250 bonus toward travel + no annual fee',body:'Subscribe to The GIST newsletter for your chance to win. Get the latest sports headlines and stories in just 5 minutes—all for free. Loved by 1M fans!*',
       ink:'#40021f',btnBg:'#40021f',btnColor:'#ff9bca',btn:'Subscribe to enter'},
-    {key:'hellofresh',bg:'#9e8bff',img:'hellofresh.png',
+    {key:'hellofresh',bg:'#9e8bff',photo:'photo-hellofresh.png',cards:['#ff78b8','#e3f13b','#4de160'],
       heading:'You’ve earned 30 FREE HelloFresh meals',body:'Enjoy the convenience of farm-fresh produce & protein to your door. The ultimate dinner hack thats quicker & cheaper than takeout!*',
       ink:'#0a003e',btnBg:'#0a003e',btnColor:'#c9beff',btn:'Complete survey'}
   ];
   var N=SPOTS.length, H=250;
-  var UP='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12.5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  var DOWN='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+  function graphicHTML(s){
+    if(s.logo) return '<div class="lb-graphic"><img class="lb-logo" src="'+BASE+s.logo+'" alt=""></div>';
+    return '<div class="lb-graphic"><div class="lb-cards">'
+      +'<div class="lb-card lb-c1" style="background:'+s.cards[0]+'"></div>'
+      +'<div class="lb-card lb-c2" style="background:'+s.cards[1]+'"></div>'
+      +'<div class="lb-card lb-c3" style="background:'+s.cards[2]+'"></div>'
+      +'<div class="lb-card lb-c4" style="background-image:url('+BASE+s.photo+')"></div>'
+      +'</div></div>';
+  }
   function bodyHTML(s){
-    var media = s.logo
-      ? '<img class="lb-logo" src="'+BASE+s.img+'" alt="">'
-      : '<img class="lb-img" src="'+BASE+s.img+'" alt="">';
-    var text = '<div class="lb-text"><h3 class="lb-heading">'+esc(s.heading)+'</h3><p class="lb-body-txt">'+esc(s.body)+'</p></div>';
-    var btn = '<button class="lb-btn" type="button" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+esc(s.btn)+'</button>';
-    var terms = '<div class="lb-terms">Terms apply · Sponsored</div>';
-    var arrows = '<div class="lb-arrows">'
-      + '<button class="lb-arrow lb-prev" type="button" aria-label="Previous offer" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+UP+'</button>'
-      + '<button class="lb-arrow lb-next" type="button" aria-label="Next offer" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+DOWN+'</button>'
+    return '<div class="lb-body '+(s.splash?'lb-splash':'lb-offer')+'" style="background:'+s.bg+';color:'+s.ink+'">'
+      + graphicHTML(s)
+      + '<div class="lb-content"><div class="lb-text"><h3 class="lb-heading">'+esc(s.heading)+'</h3><p class="lb-body-txt">'+esc(s.body)+'</p></div>'
+      + '<button class="lb-btn" type="button" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+esc(s.btn)+'</button></div>'
+      + '<div class="lb-terms">Terms apply · Sponsored</div>'
       + '</div>';
-    return '<div class="lb-body '+(s.splash?'lb-splash':'lb-offer')+'" style="background:'+s.bg+';color:'+s.ink+'">'+media+text+btn+terms+arrows+'</div>';
   }
 
   var track=document.getElementById('lb-track');
@@ -149,59 +164,55 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   var bodies=[].slice.call(track.children);
   if(bodies[0]) bodies[0].classList.add('lb-intro');
 
-  // pagination (shared)
+  // pagination
   var pag=document.getElementById('lb-pag'), dots=[];
   SPOTS.forEach(function(s,i){
     var d=document.createElement('button');
-    d.className='lb-dot'; d.type='button'; d.setAttribute('role','tab');
-    d.setAttribute('aria-label','Offer '+(i+1)+' of '+N);
+    d.className='lb-dot'; d.type='button'; d.setAttribute('role','tab'); d.setAttribute('aria-label','Offer '+(i+1)+' of '+N);
     d.addEventListener('click',function(){ goTo(i); });
     pag.appendChild(d); dots.push(d);
   });
 
   var stage=document.getElementById('lb-stage');
+  var prevBtn=stage.querySelector('.lb-prev'), nextBtn=stage.querySelector('.lb-next');
   var pos=0, locked=false;
 
   function render(animate){
     track.classList.toggle('lb-noanim', !animate || reduce);
     track.style.transform='translateY('+(-pos*H)+'px)';
     dots.forEach(function(d,i){ d.classList.toggle('on',i===pos); d.setAttribute('aria-selected',i===pos?'true':'false'); });
-    // per-spot arrow disabled states (bounded, no wrap)
-    bodies.forEach(function(b){
-      var p=b.querySelector('.lb-prev'), n=b.querySelector('.lb-next');
-      if(p) p.disabled = (pos===0);
-      if(n) n.disabled = (pos===N-1);
+    // shared arrows: animate colours to the current spot + update disabled states
+    stage.style.setProperty('--lb-ink',SPOTS[pos].btnBg);
+    stage.style.setProperty('--lb-accent',SPOTS[pos].btnColor);
+    prevBtn.disabled=(pos===0);
+    nextBtn.disabled=(pos===N-1);
+  }
+  function go(dir){ var np=Math.max(0,Math.min(N-1,pos+dir)); if(locked||np===pos)return; locked=true; pos=np; render(true); if(reduce)locked=false; }
+  function goTo(i){ i=Math.max(0,Math.min(N-1,i)); if(locked||i===pos)return; locked=true; pos=i; render(true); if(reduce)locked=false; }
+  track.addEventListener('transitionend',function(e){ if(e.target===track && e.propertyName==='transform') locked=false; });
+
+  prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
+  nextBtn.addEventListener('click',function(e){e.stopPropagation();go(1);});
+
+  // subtle 3D tilt following the mouse over each graphic
+  bodies.forEach(function(b){
+    var g=b.querySelector('.lb-graphic'); if(!g) return;
+    var cards=g.querySelector('.lb-cards'); if(!cards || reduce) return;
+    g.addEventListener('mousemove',function(e){
+      var r=g.getBoundingClientRect();
+      var mx=(e.clientX-r.left)/r.width-0.5, my=(e.clientY-r.top)/r.height-0.5;
+      cards.style.transform='rotateY('+(mx*10)+'deg) rotateX('+(-my*10)+'deg)';
     });
-  }
-
-  function go(dir){
-    var np=Math.max(0,Math.min(N-1,pos+dir));
-    if(locked||np===pos) return;
-    locked=true; pos=np; render(true);
-  }
-  function goTo(i){
-    i=Math.max(0,Math.min(N-1,i));
-    if(locked||i===pos) return;
-    locked=true; pos=i; render(true);
-    if(reduce){ locked=false; }
-  }
-  track.addEventListener('transitionend',function(e){ if(e.target===track && e.propertyName==='transform'){ locked=false; } });
-  if(reduce){ /* transitions off → unlock immediately after go */ }
-
-  // delegate arrow clicks (arrows live inside each body)
-  track.addEventListener('click',function(e){
-    var a=e.target.closest && e.target.closest('.lb-arrow');
-    if(a){ e.stopPropagation(); if(a.disabled) return; go(a.classList.contains('lb-prev')?-1:1); }
+    g.addEventListener('mouseleave',function(){ cards.style.transform=''; });
   });
 
-  // wheel over the unit → page (bounded)
+  // wheel over the unit -> page (bounded)
   var wheelLock=false;
   stage.addEventListener('wheel',function(e){
     if(Math.abs(e.deltaY)<Math.abs(e.deltaX)) return;
     e.preventDefault();
     if(wheelLock||locked||Math.abs(e.deltaY)<4) return;
-    wheelLock=true; go(e.deltaY>0?1:-1);
-    setTimeout(function(){wheelLock=false;},650);
+    wheelLock=true; go(e.deltaY>0?1:-1); setTimeout(function(){wheelLock=false;},650);
   },{passive:false});
 
   // swipe up/down
@@ -214,7 +225,6 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   },{passive:false});
   stage.addEventListener('touchend',function(){ty=null;tx=null;});
 
-  // keyboard when focused
   stage.addEventListener('keydown',function(e){
     if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();go(1);}
     else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();go(-1);}
@@ -222,16 +232,11 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 
   // responsive scale-to-fit (fixed 970-wide design)
   var fit=document.getElementById('lb-fit'), fitwrap=document.getElementById('lb-fitwrap');
-  function resize(){
-    var avail=fitwrap.clientWidth||document.getElementById('lb-root').clientWidth;
-    var s=Math.min(1, avail/970);
-    fit.style.transform='translateX(-50%) scale('+s+')';
-    fitwrap.style.height=(250*s)+'px';
-  }
+  function resize(){ var avail=fitwrap.clientWidth||970; var s=Math.min(1,avail/970);
+    fit.style.transform='translateX(-50%) scale('+s+')'; fitwrap.style.height=(250*s)+'px'; }
   window.addEventListener('resize',resize);
 
-  render(false);
-  resize();
+  render(false); resize();
 })();
 </script>
 </body>
