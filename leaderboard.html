@@ -26,24 +26,30 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-track.lb-noanim{transition:none;}
 .lb-body{position:relative;flex:0 0 250px;width:954px;height:250px;overflow:hidden;}
 
-/* graphic frame: layered cards that animate independently */
-.lb-graphic{position:absolute;left:8px;top:0;bottom:0;width:206px;z-index:1;perspective:820px;}
+/* graphic frame: layered cards that animate independently.
+   Geometry lifted verbatim from Figma ("Image for export", 195x228 at 14,11):
+   each wrapper places a card by its own top-left origin with the design's CCW rotation;
+   the inner .lb-card carries hover animation (origin bottom-left) so placement and
+   animation never fight. */
+.lb-graphic{position:absolute;left:14px;top:11px;width:195px;height:228px;z-index:1;perspective:820px;}
 .lb-cards{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;}
-.lb-card{position:absolute;left:16px;bottom:42px;width:116px;height:150px;border-radius:14px;transform-origin:0% 100%;
+.lb-cw{position:absolute;top:0;left:0;transform-origin:0 0;transform-style:preserve-3d;}
+.lb-cw1{width:90px;height:117px;transform:translate3d(22px,86px,0) rotate(-22.3deg);z-index:1;}
+.lb-cw2{width:90px;height:126px;transform:translate3d(31px,72px,9px) rotate(-17.3deg);z-index:2;}
+.lb-cw3{width:90px;height:134px;transform:translate3d(43px,59px,18px) rotate(-12.3deg);z-index:3;}
+.lb-cw4{width:97px;height:140px;transform:translate3d(58px,47px,28px) rotate(-7.3deg);z-index:4;}
+.lb-card{position:absolute;inset:0;border-radius:14px;transform-origin:0% 100%;
   box-shadow:0 8px 16px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.12);
   transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;backface-visibility:hidden;}
-.lb-c1{transform:rotate(22deg) translateZ(0px);z-index:1;}
-.lb-c2{transform:rotate(16.5deg) translateZ(9px);z-index:2;}
-.lb-c3{transform:rotate(11deg) translateZ(18px);z-index:3;}
-.lb-c4{width:114px;height:152px;border-radius:15px;transform:rotate(6deg) translateZ(28px);z-index:4;overflow:hidden;background-color:#ff8808;background-size:cover;background-position:center;}
+.lb-cw4 .lb-card{border-radius:15px;overflow:hidden;background-color:#ff8808;background-size:cover;background-position:center;}
 /* hover: scale up slightly + fan out subtly, pivoting from bottom-left */
 @media (hover:hover){
-  .lb-graphic:hover .lb-c1{transform:rotate(31deg) translateZ(0px) scale(1.05);}
-  .lb-graphic:hover .lb-c2{transform:rotate(22deg) translateZ(9px) scale(1.05);}
-  .lb-graphic:hover .lb-c3{transform:rotate(13deg) translateZ(18px) scale(1.05);}
-  .lb-graphic:hover .lb-c4{transform:rotate(5deg) translateZ(28px) scale(1.05);}
+  .lb-graphic:hover .lb-cw1 .lb-card{transform:rotate(-6deg) scale(1.05);}
+  .lb-graphic:hover .lb-cw2 .lb-card{transform:rotate(-3.5deg) scale(1.05);}
+  .lb-graphic:hover .lb-cw3 .lb-card{transform:rotate(-1deg) scale(1.05);}
+  .lb-graphic:hover .lb-cw4 .lb-card{transform:rotate(1.5deg) scale(1.05);}
 }
-.lb-logo{position:absolute;left:40px;top:50%;transform:translateY(-50%);width:100px;height:100px;border-radius:50%;display:block;z-index:1;}
+.lb-logo{position:absolute;left:26px;top:50%;transform:translateY(-50%);width:100px;height:100px;border-radius:50%;display:block;z-index:1;}/* graphic starts at x:14, so 26 = design x:40 */
 
 /* content = text + CTA in a flex row so the button's flexible width never overlaps the text */
 .lb-content{position:absolute;top:0;bottom:0;right:40px;display:flex;align-items:center;gap:28px;z-index:2;}
@@ -92,7 +98,8 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 
 @media (prefers-reduced-motion:reduce){
   .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn{transition:none;}
-  .lb-graphic:hover .lb-c1,.lb-graphic:hover .lb-c2,.lb-graphic:hover .lb-c3,.lb-graphic:hover .lb-c4{transform:none;}
+  .lb-graphic:hover .lb-cw1 .lb-card,.lb-graphic:hover .lb-cw2 .lb-card,
+  .lb-graphic:hover .lb-cw3 .lb-card,.lb-graphic:hover .lb-cw4 .lb-card{transform:none;}
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
 }
 </style>
@@ -144,10 +151,10 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   function graphicHTML(s){
     if(s.logo) return '<div class="lb-graphic"><img class="lb-logo" src="'+BASE+s.logo+'" alt=""></div>';
     return '<div class="lb-graphic"><div class="lb-cards">'
-      +'<div class="lb-card lb-c1" style="background:'+s.cards[0]+'"></div>'
-      +'<div class="lb-card lb-c2" style="background:'+s.cards[1]+'"></div>'
-      +'<div class="lb-card lb-c3" style="background:'+s.cards[2]+'"></div>'
-      +'<div class="lb-card lb-c4" style="background-image:url('+BASE+s.photo+')"></div>'
+      +'<div class="lb-cw lb-cw1"><div class="lb-card" style="background:'+s.cards[0]+'"></div></div>'
+      +'<div class="lb-cw lb-cw2"><div class="lb-card" style="background:'+s.cards[1]+'"></div></div>'
+      +'<div class="lb-cw lb-cw3"><div class="lb-card" style="background:'+s.cards[2]+'"></div></div>'
+      +'<div class="lb-cw lb-cw4"><div class="lb-card" style="background-image:url('+BASE+s.photo+')"></div></div>'
       +'</div></div>';
   }
   function bodyHTML(s){
