@@ -207,6 +207,10 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
   nextBtn.addEventListener('click',function(e){e.stopPropagation();go(1);});
 
+  // spot 1 CTA scrolls to the first offer
+  var splashBtn=bodies[0]&&bodies[0].querySelector('.lb-btn');
+  if(splashBtn) splashBtn.addEventListener('click',function(e){e.stopPropagation();goTo(1);});
+
   // wheel over the unit -> page (bounded)
   var wheelLock=false;
   stage.addEventListener('wheel',function(e){
