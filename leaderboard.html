@@ -75,6 +75,8 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 
 /* terms (bottom-left, scrolls with the spot) */
 .lb-terms{position:absolute;left:15px;bottom:12px;font-size:11px;line-height:1;font-weight:400;pointer-events:none;mix-blend-mode:multiply;opacity:.85;z-index:2;}
+.lb-terms-link{pointer-events:auto;cursor:pointer;text-underline-offset:2px;}
+@media (hover:hover){.lb-terms-link:hover{text-decoration:underline;}}
 
 /* prev / next arrows — SHARED overlay, fixed on the stage; colours animate between spots */
 .lb-arrows{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:6;}
@@ -117,6 +119,12 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-exit .lb-content{animation:lb-fall .3s ease-in both;}
 .lb-exit.lb-splash .lb-graphic{animation:lb-fall .3s ease-in both;}
 .lb-exit.lb-offer .lb-cards{animation:lb-fall .3s ease-in both;}
+/* legal copy rides the same transitions — own keyframes so the fill lands on its resting .85 opacity */
+@keyframes lb-rise-t{from{opacity:0;transform:translateY(var(--lb-rise-y,16px));}to{opacity:.85;transform:none;}}
+@keyframes lb-fall-t{from{opacity:.85;transform:none;}to{opacity:0;transform:translateY(var(--lb-exit-y,-16px));}}
+.lb-intro .lb-terms{animation:lb-rise-t .5s cubic-bezier(.2,0,0,1) .2s both;}
+.lb-enter .lb-terms{animation:lb-rise-t .45s cubic-bezier(.2,0,0,1) .34s both;}
+.lb-exit .lb-terms{animation:lb-fall-t .3s ease-in both;}
 
 @media (prefers-reduced-motion:reduce){
   .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo{transition:none;}
@@ -127,6 +135,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
   .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cards{animation:none;}
   .lb-exit .lb-graphic,.lb-exit .lb-content,.lb-exit .lb-cards{animation:none;}
+  .lb-intro .lb-terms,.lb-enter .lb-terms,.lb-exit .lb-terms{animation:none;}
 }
 </style>
 </head>
@@ -188,7 +197,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
       + graphicHTML(s)
       + '<div class="lb-content"><div class="lb-text"><h3 class="lb-heading">'+esc(s.heading)+'</h3><p class="lb-body-txt">'+esc(s.body)+'</p></div>'
       + '<button class="lb-btn" type="button" style="background:'+s.btnBg+';color:'+s.btnColor+'">'+esc(s.btn)+'</button></div>'
-      + '<div class="lb-terms">Terms apply · Sponsored</div>'
+      + '<div class="lb-terms"><span class="lb-terms-link">Terms apply</span> · Sponsored</div>'
       + '</div>';
   }
 
