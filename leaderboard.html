@@ -17,8 +17,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-root{width:100%;max-width:970px;}
 .lb-fitwrap{position:relative;width:100%;overflow:hidden;}
 .lb-fit{position:absolute;top:0;left:50%;width:970px;height:250px;transform-origin:top center;}
-.lb-unit{display:flex;align-items:stretch;gap:8px;width:970px;height:250px;user-select:none;
-  transition:transform .4s cubic-bezier(.2,0,0,1);will-change:transform;}/* subtle mouse parallax */
+.lb-unit{display:flex;align-items:stretch;gap:8px;width:970px;height:250px;user-select:none;}
 
 /* scrolling viewport */
 .lb-stage{position:relative;flex:0 0 954px;width:954px;height:250px;overflow:hidden;border-radius:24px;contain:paint;transform:translateZ(0);cursor:pointer;
@@ -102,7 +101,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-intro .lb-content{animation-delay:120ms;}
 
 @media (prefers-reduced-motion:reduce){
-  .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo,.lb-unit{transition:none;}
+  .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo{transition:none;}
   .lb-graphic:hover .lb-cw1 .lb-card,.lb-graphic:hover .lb-cw2 .lb-card,
   .lb-graphic:hover .lb-cw3 .lb-card,.lb-graphic:hover .lb-cw4 .lb-card{transform:none;}
   .lb-offer .lb-graphic:hover{transform:none;}
@@ -208,20 +207,18 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
   nextBtn.addEventListener('click',function(e){e.stopPropagation();go(1);});
 
-  // 3D tilt + subtle unit parallax, driven by mouse position anywhere on the banner
+  // card group only: 3D tilt + subtle positional shift, driven by mouse anywhere on the banner
   var allCards=[].slice.call(track.querySelectorAll('.lb-cards'));
-  var unit=document.querySelector('.lb-unit');
-  if(!reduce){
+  if(allCards.length && !reduce){
     stage.addEventListener('mousemove',function(e){
       var r=stage.getBoundingClientRect();
       var mx=(e.clientX-r.left)/r.width-0.5, my=(e.clientY-r.top)/r.height-0.5;
-      var t='rotateY('+(mx*15).toFixed(2)+'deg) rotateX('+(-my*15).toFixed(2)+'deg)';
+      var t='translate('+(mx*8).toFixed(2)+'px,'+(my*6).toFixed(2)+'px) '
+           +'rotateY('+(mx*15).toFixed(2)+'deg) rotateX('+(-my*15).toFixed(2)+'deg)';
       allCards.forEach(function(c){ c.style.transform=t; });
-      unit.style.transform='translate('+(mx*8).toFixed(2)+'px,'+(my*6).toFixed(2)+'px)';
     });
     stage.addEventListener('mouseleave',function(){
       allCards.forEach(function(c){ c.style.transform=''; });
-      unit.style.transform='';
     });
   }
 
