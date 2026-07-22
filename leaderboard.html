@@ -110,6 +110,13 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 /* the card fan enters as one set — animating the container (not each card) so the
    per-card hover transforms (fan spread) aren't overridden by an animation fill */
 .lb-offer.lb-enter .lb-cards{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
+/* matching exit on the outgoing spot: quicker + softer, continuing the direction of travel */
+.lb-exit-up{--lb-exit-y:-16px;}
+.lb-exit-down{--lb-exit-y:16px;}
+@keyframes lb-fall{from{opacity:1;transform:none;}to{opacity:0;transform:translateY(var(--lb-exit-y,-16px));}}
+.lb-exit .lb-content{animation:lb-fall .3s ease-in both;}
+.lb-exit.lb-splash .lb-graphic{animation:lb-fall .3s ease-in both;}
+.lb-exit.lb-offer .lb-cards{animation:lb-fall .3s ease-in both;}
 
 @media (prefers-reduced-motion:reduce){
   .lb-track,.lb-card,.lb-cards,.lb-arrow,.lb-dot,.lb-btn,.lb-graphic,.lb-logo{transition:none;}
@@ -119,6 +126,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   .lb-logo:hover{transform:translateY(-50%);}
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
   .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cards{animation:none;}
+  .lb-exit .lb-graphic,.lb-exit .lb-content,.lb-exit .lb-cards{animation:none;}
 }
 </style>
 </head>
@@ -212,17 +220,18 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
     prevBtn.disabled=(pos===0);
     nextBtn.disabled=(pos===N-1);
   }
-  function playEnter(dir){                   // replay the intro rise/fade on the incoming spot
+  function playEnter(dir,from){              // replay the intro rise/fade on the incoming spot, fade out the outgoing one
     if(reduce) return;
     // retire the one-time intro: if it stayed on spot 1, dropping .lb-enter later would swap the
     // animation-name back and RESTART the intro on the outgoing slide (visible flicker)
     if(bodies[0].classList.contains('lb-intro')) bodies[0].classList.remove('lb-intro');
-    bodies.forEach(function(b){ b.classList.remove('lb-enter','lb-from-above','lb-from-below'); });
-    var b=bodies[pos]; void b.offsetWidth;   // reflow so re-adding the class restarts the animation
+    bodies.forEach(function(b){ b.classList.remove('lb-enter','lb-from-above','lb-from-below','lb-exit','lb-exit-up','lb-exit-down'); });
+    var b=bodies[pos]; void b.offsetWidth;   // reflow so re-adding the classes restarts the animations
     b.classList.add('lb-enter', dir<0?'lb-from-above':'lb-from-below');
+    if(from!=null&&bodies[from]) bodies[from].classList.add('lb-exit', dir<0?'lb-exit-down':'lb-exit-up');
   }
-  function go(dir){ var np=Math.max(0,Math.min(N-1,pos+dir)); if(locked||np===pos)return; locked=true; pos=np; render(true); playEnter(dir); if(reduce)locked=false; }
-  function goTo(i){ i=Math.max(0,Math.min(N-1,i)); if(locked||i===pos)return; var dir=i>pos?1:-1; locked=true; pos=i; render(true); playEnter(dir); if(reduce)locked=false; }
+  function go(dir){ var np=Math.max(0,Math.min(N-1,pos+dir)); if(locked||np===pos)return; var from=pos; locked=true; pos=np; render(true); playEnter(dir,from); if(reduce)locked=false; }
+  function goTo(i){ i=Math.max(0,Math.min(N-1,i)); if(locked||i===pos)return; var dir=i>pos?1:-1; var from=pos; locked=true; pos=i; render(true); playEnter(dir,from); if(reduce)locked=false; }
   track.addEventListener('transitionend',function(e){ if(e.target===track && e.propertyName==='transform') locked=false; });
 
   prevBtn.addEventListener('click',function(e){e.stopPropagation();go(-1);});
