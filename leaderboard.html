@@ -122,7 +122,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-cw3{--lb-fan-from:-1deg;}
 .lb-cw4{--lb-fan-from:2.5deg;}
 @keyframes lb-unfan{from{transform:rotate(var(--lb-fan-from,0deg));}to{transform:none;}}
-.lb-offer.lb-enter .lb-cw .lb-card{animation:lb-unfan .5s cubic-bezier(.2,0,0,1) .26s backwards;}
+.lb-offer.lb-enter .lb-cw .lb-card{animation:lb-unfan .5s cubic-bezier(.2,0,0,1) .6s backwards;}/* starts after the .55s slide has stopped */
 /* matching exit on the outgoing spot: quicker + softer, continuing the direction of travel */
 .lb-exit-up{--lb-exit-y:-16px;}
 .lb-exit-down{--lb-exit-y:16px;}
