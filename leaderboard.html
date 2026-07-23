@@ -108,10 +108,12 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 .lb-from-above{--lb-rise-y:-16px;}
 @keyframes lb-rise2{from{opacity:0;transform:translateY(var(--lb-rise-y,16px));}to{opacity:1;transform:none;}}
 .lb-enter .lb-content{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .3s both;}
-.lb-splash.lb-enter .lb-graphic{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
+/* graphic entrances hold until the slide is nearly settled (like the text) — an earlier
+   delay made the fan ~60% visible mid-slide, reading as "sliding in" rather than fading in */
+.lb-splash.lb-enter .lb-graphic{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .26s both;}
 /* the card fan enters as one set — animating the container (not each card) so the
    per-card hover transforms (fan spread) aren't overridden by an animation fill */
-.lb-offer.lb-enter .lb-cards{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .18s both;}
+.lb-offer.lb-enter .lb-cards{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .26s both;}
 /* matching exit on the outgoing spot: quicker + softer, continuing the direction of travel */
 .lb-exit-up{--lb-exit-y:-16px;}
 .lb-exit-down{--lb-exit-y:16px;}
