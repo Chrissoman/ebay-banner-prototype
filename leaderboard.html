@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>THANKS — Super leaderboard prototype</title>
+<link rel="preload" href="./leaderboard/Gramatika-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./leaderboard/Gramatika-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./leaderboard/Gramatika-Black.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./leaderboard/logo.png" as="image">
+<link rel="preload" href="./leaderboard/photo-cruise.png" as="image">
 <style>
 @font-face{font-family:'Gramatika';src:url('./leaderboard/Gramatika-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;}
 @font-face{font-family:'Gramatika';src:url('./leaderboard/Gramatika-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap;}
@@ -101,6 +106,9 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 @keyframes lb-rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
 .lb-intro .lb-graphic,.lb-intro .lb-content{animation:lb-rise .5s cubic-bezier(.2,0,0,1) both;}
 .lb-intro .lb-content{animation-delay:120ms;}
+/* cold-load gate: keep the intro paused at its from-state (invisible) until fonts +
+   spot-1 imagery have loaded, so first paint never shows a half-loaded entrance */
+.lb-hold .lb-intro .lb-graphic,.lb-hold .lb-intro .lb-content,.lb-hold .lb-intro .lb-terms{animation-play-state:paused;}
 /* entrance re-played on the incoming spot at every transition, timed to land with the slide.
    Direction-aware: content enters from the direction of travel. Separate keyframe name so it
    restarts even on spot 1 (same-name completed animations don't replay). */
@@ -151,7 +159,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 </style>
 </head>
 <body>
-<div id="lb-root" class="lb-root">
+<div id="lb-root" class="lb-root lb-hold">
   <div class="lb-fitwrap" id="lb-fitwrap">
     <div class="lb-fit" id="lb-fit">
       <div class="lb-unit">
@@ -216,6 +224,18 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   track.innerHTML=SPOTS.map(bodyHTML).join('');
   var bodies=[].slice.call(track.children);
   if(bodies[0]) bodies[0].classList.add('lb-intro');
+
+  // cold-load gate: the intro starts paused (.lb-hold); release it once the fonts and
+  // spot-1 imagery are actually ready, capped at 2s so a slow network never stalls it
+  (function(){
+    var root=document.getElementById('lb-root');
+    var waits=[];
+    if(document.fonts&&document.fonts.ready) waits.push(document.fonts.ready);
+    var logo=bodies[0]&&bodies[0].querySelector('.lb-logo');
+    if(logo&&logo.decode) waits.push(logo.decode().catch(function(){}));
+    Promise.race([Promise.all(waits), new Promise(function(r){setTimeout(r,2000);})])
+      .then(function(){ requestAnimationFrame(function(){ root.classList.remove('lb-hold'); }); });
+  })();
 
   // pagination
   var pag=document.getElementById('lb-pag'), dots=[];
