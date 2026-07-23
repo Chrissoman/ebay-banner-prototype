@@ -114,6 +114,15 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
 /* the card fan enters as one set — animating the container (not each card) so the
    per-card hover transforms (fan spread) aren't overridden by an animation fill */
 .lb-offer.lb-enter .lb-cards{animation:lb-rise2 .45s cubic-bezier(.2,0,0,1) .26s both;}
+/* ...while each card starts fanned out and settles into the stack (origin bottom-left).
+   fill is BACKWARDS, not both: the animation releases the cards when it finishes, so the
+   hover fan-spread transforms still work afterwards */
+.lb-cw1{--lb-fan-from:-9deg;}
+.lb-cw2{--lb-fan-from:-5deg;}
+.lb-cw3{--lb-fan-from:-1deg;}
+.lb-cw4{--lb-fan-from:2.5deg;}
+@keyframes lb-unfan{from{transform:rotate(var(--lb-fan-from,0deg));}to{transform:none;}}
+.lb-offer.lb-enter .lb-cw .lb-card{animation:lb-unfan .5s cubic-bezier(.2,0,0,1) .26s backwards;}
 /* matching exit on the outgoing spot: quicker + softer, continuing the direction of travel */
 .lb-exit-up{--lb-exit-y:-16px;}
 .lb-exit-down{--lb-exit-y:16px;}
@@ -135,7 +144,7 @@ body{min-height:100%;display:flex;align-items:center;justify-content:center;padd
   .lb-offer .lb-graphic:hover{transform:none;}
   .lb-logo:hover{transform:translateY(-50%);}
   .lb-intro .lb-graphic,.lb-intro .lb-content{animation:none;}
-  .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cards{animation:none;}
+  .lb-enter .lb-graphic,.lb-enter .lb-content,.lb-enter .lb-cards,.lb-enter .lb-cw .lb-card{animation:none;}
   .lb-exit .lb-graphic,.lb-exit .lb-content,.lb-exit .lb-cards{animation:none;}
   .lb-intro .lb-terms,.lb-enter .lb-terms,.lb-exit .lb-terms{animation:none;}
 }
